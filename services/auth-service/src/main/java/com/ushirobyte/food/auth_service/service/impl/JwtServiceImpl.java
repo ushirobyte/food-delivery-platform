@@ -26,4 +26,14 @@ public class JwtServiceImpl implements JwtService {
                 .signWith(getSigningKey())
                 .compact();
     }
+
+    @Override
+    public String extractEmail(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
 }
