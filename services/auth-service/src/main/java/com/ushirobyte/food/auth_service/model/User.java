@@ -32,11 +32,12 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    private String role = "ROLE_USER";
+    @Column(nullable = false)
+    private String role = "USER";
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
 
     @Override

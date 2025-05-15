@@ -26,6 +26,13 @@ public class AuthServiceImpl implements AuthService {
         user.setFullName(registerRequest.getFullName());
         user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+
+        if (registerRequest.getEmail().endsWith("@admin.com")) {
+            user.setRole("ADMIN");
+        } else {
+            user.setRole("USER");
+        }
+
         userRepository.save(user);
     }
 
