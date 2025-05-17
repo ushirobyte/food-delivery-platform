@@ -1,10 +1,13 @@
 package com.ushirobyte.food.auth_service.controller;
 
+import com.ushirobyte.food.auth_service.dto.UserDto;
 import com.ushirobyte.food.auth_service.model.User;
 import com.ushirobyte.food.auth_service.repository.UserRepository;
 import com.ushirobyte.food.auth_service.service.AuthService;
 import com.ushirobyte.food.auth_service.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -45,6 +48,12 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
+    public ResponseEntity<Page<UserDto>> getAllUsers(Pageable pageable) {
+        return ResponseEntity.ok(userService.findAllUsers(pageable));
     }
 
     @GetMapping("/me")
