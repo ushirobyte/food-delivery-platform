@@ -23,11 +23,11 @@ public class UserController {
 
     private final UserService userService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    /*@PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getUsers());
-    }
+    }*/
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/promote/{id}")
