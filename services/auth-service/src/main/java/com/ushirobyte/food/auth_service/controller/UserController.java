@@ -1,6 +1,8 @@
 package com.ushirobyte.food.auth_service.controller;
 
+import com.ushirobyte.food.auth_service.dto.ApiResponse;
 import com.ushirobyte.food.auth_service.dto.UserDto;
+import com.ushirobyte.food.auth_service.mapper.UserMapper;
 import com.ushirobyte.food.auth_service.model.User;
 import com.ushirobyte.food.auth_service.repository.UserRepository;
 import com.ushirobyte.food.auth_service.service.AuthService;
@@ -12,8 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -22,6 +26,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
     /*@PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
@@ -57,8 +62,19 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<String> getCurrentUser(Authentication auth) {
-        return ResponseEntity.ok("Hello, " + auth.getName());
+    public ResponseEntity<ApiResponse<UserDto>> getCurrentUser(Authentication auth) {
+        User user = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserDto userDto = UserMapper.toDto(user);
+
+        return ResponseEntity.ok(
+                ApiResponse.<UserDto>builder()
+                        .data(userDto)
+                        .message("Профиль успешно получен")
+                        .timestamp(LocalDate.now())
+                        .build()
+        );
     }
 
 }
