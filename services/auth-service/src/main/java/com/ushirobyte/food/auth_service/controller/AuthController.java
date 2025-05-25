@@ -1,7 +1,6 @@
 package com.ushirobyte.food.auth_service.controller;
 
-import com.ushirobyte.food.auth_service.dto.LoginRequest;
-import com.ushirobyte.food.auth_service.dto.RegisterRequest;
+import com.ushirobyte.food.auth_service.dto.*;
 import com.ushirobyte.food.auth_service.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping(value = "/api/auth")
@@ -26,9 +27,19 @@ public class AuthController {
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
-        String token = authService.login(loginRequest);
-        return new ResponseEntity<>(token, HttpStatus.OK);
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
+        AuthResponse authResponse = authService.login(loginRequest);
+        return new ResponseEntity<>(authResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<String>> refresh(@RequestBody RefreshTokenRequest request) {
+        String accessToken = authService.refreshAccessToken(request.getRefreshToken());
+        return ResponseEntity.ok(ApiResponse.<String>builder()
+                .data(accessToken)
+                .message("New access token issued")
+                .timestamp(LocalDate.now())
+                .build());
     }
 
 }
