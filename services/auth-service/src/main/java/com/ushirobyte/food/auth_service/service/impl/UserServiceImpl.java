@@ -7,6 +7,7 @@ import com.ushirobyte.food.auth_service.model.User;
 import com.ushirobyte.food.auth_service.repository.ActivityLogRepository;
 import com.ushirobyte.food.auth_service.repository.UserRepository;
 import com.ushirobyte.food.auth_service.service.UserService;
+import com.ushirobyte.food.auth_service.kafka.ActivityProducer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ActivityLogRepository activityLogRepository;
+    private final ActivityProducer activityProducer;
 
     @Override
     public List<User> getUsers() {
@@ -66,10 +68,12 @@ public class UserServiceImpl implements UserService {
     }
 
     private void logAction(String actorEmail, String action) {
-        activityLogRepository.save(ActivityLog.builder()
+        ActivityLog log = ActivityLog.builder()
                 .actorEmail(actorEmail)
                 .action(action)
                 .timestamp(LocalDateTime.now())
-                .build());
+                .build();
+        activityLogRepository.save(log);
+        activityProducer.send(log);
     }
 }
